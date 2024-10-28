@@ -15,7 +15,7 @@
 │       ├── trackers 追踪结果存放位置
 │   ├── results 结果存放位置
 ├── trackeval 评估库 
-├── txt2metric.py 评估API
+├── mot_metric.py 评估API
 ├── txt2mot.py 数据集格式化脚本（修改后三位）
 ├── txt2mot_cls.py  数据集格式化脚本（将类别转换为对应数字）
 ```
