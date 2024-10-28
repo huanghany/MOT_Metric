@@ -62,11 +62,23 @@ if __name__ == '__main__':
     # print(seq_list)
     # print(class_list)
     # print(analyze_result[0])
+    results = {}
+
     for i in seq_list:
         metric_result = analyze_result[i][class_list[0]]
-        print(i)
-        print("HOTA:", metric_result['HOTA']['HOTA'])
-        print("MOTA:", metric_result['CLEAR']['MOTA'])
-        print("MOTP:", metric_result['CLEAR']['MOTP'])
-        print("IDF1:", metric_result['Identity']['IDF1'])
+        results[i] = {
+            "HOTA": metric_result['HOTA']['HOTA'].tolist(),  # 转换为列表以便存储
+            "MOTA": metric_result['CLEAR']['MOTA'],
+            "MOTP": metric_result['CLEAR']['MOTP'],
+            "IDF1": metric_result['Identity']['IDF1']
+        }
+    print(results)
+    # 打印结果
+    for test_name, metrics in results.items():
+        print(test_name)
+        print("HOTA:", metrics['HOTA'])
+        print("MOTA:", metrics['MOTA'])
+        print("MOTP:", metrics['MOTP'])
+        print("IDF1:", metrics['IDF1'])
+
     # 保存结果

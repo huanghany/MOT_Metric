@@ -19,7 +19,7 @@ class BerryBox(_BaseDataset):
         default_config = {
             'GT_FOLDER': os.path.join(code_path, 'data/gt/mydata/'),  # gt文件路径
             'TRACKERS_FOLDER': os.path.join(code_path, 'data/trackers/mydata/'),  # track文件路径
-            'OUTPUT_FOLDER': os.path.join(code_path, 'data/trackers/mydata/'),
+            'OUTPUT_FOLDER': os.path.join(code_path, 'data/results/'),
             # 结果保存路径(if None, same as TRACKERS_FOLDER)
             'TRACKERS_TO_EVAL': None,  # Filenames of trackers to eval (if None, all in folder)
             # 'CLASSES_TO_EVAL': ['ripe', 'ripe7', 'ripe4', 'ripe2', 'unripe', 'flower', 'disease'],  # 评估类别

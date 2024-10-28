@@ -10,8 +10,10 @@
 
 ```text
 ├── data 数据集存放位置
-│   ├── gt 真值存放位置
-│   ├── trackers 追踪结果存放位置
+│   ├── mydata 子数据集目录
+│       ├── gt 真值存放位置
+│       ├── trackers 追踪结果存放位置
+│   ├── results 结果存放位置
 ├── trackeval 评估库 
 ├── txt2metric.py 评估API
 ├── txt2mot.py 数据集格式化脚本（修改后三位）
@@ -20,14 +22,19 @@
 
 ## 数据
 
-你可以将你的数据，真实（gt）和测试（test）文件放在`data/`文件夹下，这是一个例子：
+你可以将你的数据，真实（gt）和测试（test）文件放在`data/mydata/`文件夹下，这是一个例子：
 
 你现在有两个视频，video1和video2，这两个视频你都进行了多目标跟踪。那么你需要这样组织你的文件夹：
 ```
---video1/gt/gt.txt          # video1的gt文件
---video2/gt/gt.txt          # video2的gt文件
---video1.txt                # video1的test文件
---video2.txt                # video2的test文件
+gt/
+    test1-train/
+            seq-01/   # 视频名
+                gt.txt          # <---- ground truth
+            seqinfo.ini         # 放你的视频的信息
+trackers/   # 你自己代码运行出来的结果
+    test1-train/
+            berry/
+                seq-01.txt          # <---- model result 视频名.txt
 ```
 
 **至于每个文件中的格式，直接参照我的就行，比如：**
@@ -39,17 +46,41 @@
 ```
 **每行的第一个数是帧号；第二个数是id；后面接着的四个数表示框的位置和大小；最后三个数固定**
 
-## 参数说明
-
-- 输入的评估类别只能为小写字符及数字,
-```
-['ripe', 'ripe7', 'ripe4', 'ripe2', 'unripe', 'flower', 'disease']
-```
-
-
 ## Running the code
 
+直接运行(进行test1数据集评估)
+```
+python mot_metric.py 
+```
 
+或者带命令行参数
+```
+python mot_metric.py --BENCHMARK test1  --CLASSES_TO_EVAL ripe --METRICS HOTA CLEAR Identity  --NUM_PARALLEL_CORES 1
+```
+
+## 参数说明
+
+```
+--GT_FOLDER # gt路径
+--OUTPUT_FOLDER # 结果保存路径
+--CLASSES_TO_EVAL  # 要评估的类别 为小写字母和数字,如：unripe
+--BENCHMARK ai_city   # 视频名
+--DO_PREPROC False 
+--METRICS HOTA # 选择测评指标 'HOTA', 'CLEAR', 'Identity'
+```
+
+## 输出说明
+
+当前输出为一个result字典
+```
+test-1:
+HOTA: 0.98422
+MOTA: 0.9803113553113553
+MOTP: 0.9998710003685704
+IDF1: 0.9878412479926588
+test-2:
+...
+```
 
 ## Requirements
  Code tested on Python 3.7.
@@ -67,7 +98,7 @@ use ```pip3 -r install minimum_requirments.txt``` to only install the minimum if
 
 ## License
 
-TrackEval is released under the [MIT License](LICENSE).
+MOT_Metric is released under the [MIT License](LICENSE).
 
 
 ## Citing TrackEval
