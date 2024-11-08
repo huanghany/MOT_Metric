@@ -65,6 +65,7 @@ class _BaseMetric(ABC):
 
     def print_table(self, table_res, tracker, cls):
         """Prints table of results for all sequences"""
+        # 打印每个序列的结果
         print('')
         metric_name = self.get_name()
         self._row_print([metric_name + ': ' + tracker + '-' + cls] + self.summary_fields)  # 打印标题行
@@ -72,8 +73,8 @@ class _BaseMetric(ABC):
             if seq == 'COMBINED_SEQ':
                 continue
             summary_res = self._summary_row(results)
-            self._row_print([seq] + summary_res)
-        summary_res = self._summary_row(table_res['COMBINED_SEQ'])
+            self._row_print([seq] + summary_res)  # 输出
+        summary_res = self._summary_row(table_res['COMBINED_SEQ'])  # 总和
         self._row_print(['COMBINED'] + summary_res)
 
     def _summary_row(self, results_):  #

@@ -157,7 +157,7 @@ class _BaseDataset(ABC):
             if fp.tell():
                 fp.seek(0)
                 dialect = csv.Sniffer().sniff(fp.readline(), delimiters=force_delimiters)  # Auto determine structure.
-                dialect.skipinitialspace = True  # Deal with extra spaces between columns
+                dialect.skipinitialspace = True  # 处理列之间的额外空格
                 fp.seek(0)
                 reader = csv.reader(fp, dialect)
                 for row in reader:
@@ -320,6 +320,7 @@ class _BaseDataset(ABC):
                     exc_str_init = 'Ground-truth has the same ID more than once in a single timestep ' \
                                    '(seq: %s, frame: %i, ids:' % (data['seq'], t+1)
                     exc_str = ' '.join([exc_str_init] + [str(d) for d in duplicate_ids]) + ')'
+                    # print(exc_str)
                     if after_preproc:
                         exc_str_init += '\n Note that this error occurred after preprocessing (but not before), ' \
                                         'so ids may not be as in file, and something seems wrong with preproc.'

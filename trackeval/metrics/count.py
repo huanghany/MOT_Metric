@@ -5,6 +5,7 @@ from .. import _timing
 
 class Count(_BaseMetric):
     """Class which simply counts the number of tracker and gt detections and ids."""
+    # 计算gt和tracker的id数和检测数
     def __init__(self, config=None):
         super().__init__()
         self.integer_fields = ['Dets', 'GT_Dets', 'IDs', 'GT_IDs']

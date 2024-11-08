@@ -25,7 +25,7 @@ class BerryBox(_BaseDataset):
             # 'CLASSES_TO_EVAL': ['ripe', 'ripe7', 'ripe4', 'ripe2', 'unripe', 'flower', 'disease'],  # 评估类别
             'CLASSES_TO_EVAL': ['all'],  # 不分类
             'BENCHMARK': 'test1',  # Valid: 'MOT17', 'MOT16', 'MOT20', 'MOT15'  # 视频名
-            'SPLIT_TO_EVAL': 'train',  # Valid: 'train', 'test', 'all'  # 评估的部分
+            'SPLIT_TO_EVAL': 'test',  # Valid: 'train', 'test', 'all'  # 评估的部分
             'INPUT_AS_ZIP': False,  # 输入文件是否是压缩包
             'PRINT_CONFIG': False,  # Whether to print current config 是否输出配置
             'DO_PREPROC': False,  # 是否执行预处理
@@ -50,30 +50,31 @@ class BerryBox(_BaseDataset):
 
         self.benchmark = self.config['BENCHMARK']
         gt_set = self.config['BENCHMARK'] + '-' + self.config['SPLIT_TO_EVAL']
+        # gt_set = self.config['BENCHMARK']
         self.gt_set = gt_set
-        if not self.config['SKIP_SPLIT_FOL']:
+        if not self.config['SKIP_SPLIT_FOL']:  #
             split_fol = gt_set
         else:
             split_fol = ''
         self.gt_fol = os.path.join(self.config['GT_FOLDER'], split_fol)
         self.tracker_fol = os.path.join(self.config['TRACKERS_FOLDER'], split_fol)
-        self.should_classes_combine = False
-        self.use_super_categories = False
-        self.data_is_zipped = self.config['INPUT_AS_ZIP']
-        self.do_preproc = self.config['DO_PREPROC']
+        self.should_classes_combine = False  # 类别是否合并
+        self.use_super_categories = False  # 使用超级类别？
+        self.data_is_zipped = self.config['INPUT_AS_ZIP']  # 数据是否是压缩包
+        self.do_preproc = self.config['DO_PREPROC']  # 预处理
 
-        self.output_fol = self.config['OUTPUT_FOLDER']
+        self.output_fol = self.config['OUTPUT_FOLDER']  # 结果保存路径
         if self.output_fol is None:
             self.output_fol = self.tracker_fol
 
-        self.tracker_sub_fol = self.config['TRACKER_SUB_FOLDER']
-        self.output_sub_fol = self.config['OUTPUT_SUB_FOLDER']
+        self.tracker_sub_fol = self.config['TRACKER_SUB_FOLDER']  # 子目录
+        self.output_sub_fol = self.config['OUTPUT_SUB_FOLDER']  # 子目录
 
-        # Get classes to eval
+        # 要评估的类别
         self.valid_classes = ['all', 'ripe', 'ripe7', 'ripe4', 'ripe2', 'unripe', 'flower', 'disease']
 
         self.class_list = [cls if cls in self.valid_classes else None
-                           for cls in self.config['CLASSES_TO_EVAL']]
+                           for cls in self.config['CLASSES_TO_EVAL']]  # 将类别添加到列表中
         if not all(self.class_list):
             raise TrackEvalException('Attempted to evaluate an invalid class.')
         self.class_name_to_class_id = {'all': 0, 'ripe': 1, 'ripe7': 2, 'ripe4': 3, 'ripe2': 4, 'unripe': 5, 'flower': 6
@@ -81,31 +82,25 @@ class BerryBox(_BaseDataset):
         self.valid_class_numbers = list(self.class_name_to_class_id.values())
 
         # Get sequences to eval and check gt files exist
-        self.seq_list, self.seq_lengths = self._get_seq_info()
+        self.seq_list, self.seq_lengths = self._get_seq_info()  # 检索seq_info
         if len(self.seq_list) < 1:
             raise TrackEvalException('No sequences are selected to be evaluated.')
 
         # Check gt files exist
         for seq in self.seq_list:
-            if not self.data_is_zipped:
-                curr_file = self.config["GT_LOC_FORMAT"].format(gt_folder=self.gt_fol, seq=seq)
-                if not os.path.isfile(curr_file):
-                    print('GT file not found ' + curr_file)
-                    raise TrackEvalException('GT file not found for sequence: ' + seq)
-        if self.data_is_zipped:
-            curr_file = os.path.join(self.gt_fol, 'data.zip')
+            curr_file = self.config["GT_LOC_FORMAT"].format(gt_folder=self.gt_fol, seq=seq)  # gt文件路径
             if not os.path.isfile(curr_file):
                 print('GT file not found ' + curr_file)
-                raise TrackEvalException('GT file not found: ' + os.path.basename(curr_file))
+                raise TrackEvalException('GT file not found for sequence: ' + seq)
 
         # Get trackers to eval
         if self.config['TRACKERS_TO_EVAL'] is None:
-            self.tracker_list = os.listdir(self.tracker_fol)
+            self.tracker_list = os.listdir(self.tracker_fol)  # TRACKERS_FOLDER路径
         else:
             self.tracker_list = self.config['TRACKERS_TO_EVAL']
 
         if self.config['TRACKER_DISPLAY_NAMES'] is None:
-            self.tracker_to_disp = dict(zip(self.tracker_list, self.tracker_list))
+            self.tracker_to_disp = dict(zip(self.tracker_list, self.tracker_list))  # 名字为tracker_list
         elif (self.config['TRACKERS_TO_EVAL'] is not None) and (
                 len(self.config['TRACKER_DISPLAY_NAMES']) == len(self.tracker_list)):
             self.tracker_to_disp = dict(zip(self.tracker_list, self.config['TRACKER_DISPLAY_NAMES']))
@@ -113,19 +108,13 @@ class BerryBox(_BaseDataset):
             raise TrackEvalException('List of tracker files and tracker display names do not match.')
 
         for tracker in self.tracker_list:
-            if self.data_is_zipped:
-                curr_file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol + '.zip')
+            for seq in self.seq_list:
+                curr_file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol, seq + '.txt')  # 读取tracker文件
                 if not os.path.isfile(curr_file):
                     print('Tracker file not found: ' + curr_file)
-                    raise TrackEvalException('Tracker file not found: ' + tracker + '/' + os.path.basename(curr_file))
-            else:
-                for seq in self.seq_list:
-                    curr_file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol, seq + '.txt')
-                    if not os.path.isfile(curr_file):
-                        print('Tracker file not found: ' + curr_file)
-                        raise TrackEvalException(
-                            'Tracker file not found: ' + tracker + '/' + self.tracker_sub_fol + '/' + os.path.basename(
-                                curr_file))
+                    raise TrackEvalException(
+                        'Tracker file not found: ' + tracker + '/' + self.tracker_sub_fol + '/' + os.path.basename(
+                            curr_file))
 
     def get_display_name(self, tracker):
         return self.tracker_to_disp[tracker]
@@ -152,7 +141,7 @@ class BerryBox(_BaseDataset):
                 seqmap_file = self.config["SEQMAP_FILE"]
             else:
                 if self.config["SEQMAP_FOLDER"] is None:
-                    seqmap_file = os.path.join(self.config['GT_FOLDER'], 'seqmaps', self.gt_set + '.txt')
+                    seqmap_file = os.path.join(self.config['GT_FOLDER'], 'seqmaps', self.gt_set + '.txt')  #
                 else:
                     seqmap_file = os.path.join(self.config["SEQMAP_FOLDER"], self.gt_set + '.txt')
             if not os.path.isfile(seqmap_file):
@@ -186,32 +175,25 @@ class BerryBox(_BaseDataset):
         [tracker_dets]: list (for each timestep) of lists of detections.
         """
         # File location
-        if self.data_is_zipped:
-            if is_gt:
-                zip_file = os.path.join(self.gt_fol, 'data.zip')
-            else:
-                zip_file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol + '.zip')
-            file = seq + '.txt'
+        zip_file = None
+        if is_gt:
+            file = self.config["GT_LOC_FORMAT"].format(gt_folder=self.gt_fol, seq=seq)  # gt路径
         else:
-            zip_file = None
-            if is_gt:
-                file = self.config["GT_LOC_FORMAT"].format(gt_folder=self.gt_fol, seq=seq)
-            else:
-                file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol, seq + '.txt')
+            file = os.path.join(self.tracker_fol, tracker, self.tracker_sub_fol, seq + '.txt')  # track路径
 
-        # Load raw data from text file
+        # 从txt文件中读取
         read_data, ignore_data = self._load_simple_text_file(file, is_zipped=self.data_is_zipped, zip_file=zip_file)
 
         # Convert data to required format
         num_timesteps = self.seq_lengths[seq]
-        data_keys = ['ids', 'classes', 'dets']
+        data_keys = ['ids', 'classes', 'dets']  # 给定字典
         if is_gt:
             data_keys += ['gt_crowd_ignore_regions', 'gt_extras']
         else:
             data_keys += ['tracker_confidences']
         raw_data = {key: [None] * num_timesteps for key in data_keys}
 
-        # Check for any extra time keys
+        # Check for any extra time keys 额外的时间戳
         current_time_keys = [str(t + 1) for t in range(num_timesteps)]
         extra_time_keys = [x for x in read_data.keys() if x not in current_time_keys]
         if len(extra_time_keys) > 0:
@@ -223,11 +205,11 @@ class BerryBox(_BaseDataset):
                 text + ' data contains the following invalid timesteps in seq %s: ' % seq + ', '.join(
                     [str(x) + ', ' for x in extra_time_keys]))
 
-        for t in range(num_timesteps):
+        for t in range(num_timesteps):  #
             time_key = str(t + 1)
             if time_key in read_data.keys():
                 try:
-                    time_data = np.asarray(read_data[time_key], dtype=float)
+                    time_data = np.asarray(read_data[time_key], dtype=float)  # 一行一行读取数据
                 except ValueError:
                     if is_gt:
                         raise TrackEvalException(
@@ -237,8 +219,8 @@ class BerryBox(_BaseDataset):
                             'Cannot convert tracking data from tracker %s, sequence %s to float. Is data corrupted?' % (
                                 tracker, seq))
                 try:
-                    raw_data['dets'][t] = np.atleast_2d(time_data[:, 2:6])
-                    raw_data['ids'][t] = np.atleast_1d(time_data[:, 1]).astype(int)
+                    raw_data['dets'][t] = np.atleast_2d(time_data[:, 2:6])  # 取2-5为位置
+                    raw_data['ids'][t] = np.atleast_1d(time_data[:, 1]).astype(int)  # 取第2位为id
                 except IndexError:
                     if is_gt:
                         err = 'Cannot load gt data from sequence %s, because there is not enough ' \
@@ -249,10 +231,10 @@ class BerryBox(_BaseDataset):
                               'columns in the data.' % (tracker, seq)
                         raise TrackEvalException(err)
                 if time_data.shape[1] >= 8:
-                    raw_data['classes'][t] = np.atleast_1d(time_data[:, 7]).astype(int)
+                    raw_data['classes'][t] = np.atleast_1d(time_data[:, 7]).astype(int)  # 大于等于8位的话第7位为类别
                 else:
                     if not is_gt:
-                        raw_data['classes'][t] = np.ones_like(raw_data['ids'][t])
+                        raw_data['classes'][t] = np.ones_like(raw_data['ids'][t])  # 全部赋值为1
                     else:
                         raise TrackEvalException(
                             'GT data is not in a valid format, there is not enough rows in seq %s, timestep %i.' % (
@@ -290,13 +272,11 @@ class BerryBox(_BaseDataset):
 
     @_timing.time
     def get_preprocessed_seq_data(self, raw_data, cls):
-        # Check that input data has unique ids
+        # 检查输入数据是否是唯一id
         self._check_unique_ids(raw_data)
 
-        # distractor_class_names = ['Ripe', 'Ripe7', 'Ripe4', 'Ripe2', 'Unripe', 'Flower', 'Disease']  # 替换为我们自己的类别
-        distractor_class_names = ['all']  # 替换为我们自己的类
-        if self.benchmark == 'MOT20':
-            distractor_class_names.append('non_mot_vehicle')
+        distractor_class_names = ['all', 'ripe', 'ripe7', 'ripe4', 'ripe2', 'unripe', 'flower', 'disease']  # 替换为我们自己的类别
+        # distractor_class_names = ['all']  # 替换为我们自己的类
         distractor_classes = [self.class_name_to_class_id[x] for x in distractor_class_names]
         cls_id = self.class_name_to_class_id[cls]
 
@@ -321,12 +301,13 @@ class BerryBox(_BaseDataset):
 
             # Evaluation is ONLY valid for pedestrian class
 
-            if len(tracker_classes) > 0 and np.max(tracker_classes) > 1:
+            if len(tracker_classes) > 0 and np.max(tracker_classes) > 1:  #
                 raise TrackEvalException(
                     'Evaluation is only valid for pedestrian class. Non pedestrian class (%i) found in sequence %s at '
                     'timestep %i.' % (np.max(tracker_classes), raw_data['seq'], t))
 
             # Match tracker and gt dets (with hungarian algorithm) and remove tracker dets which match with gt dets
+            # 用匈牙利算法计算gt和t的匹配度
             # which are labeled as belonging to a distractor class.
             to_remove_tracker = np.array([], int)
             if self.do_preproc and self.benchmark != 'MOT15' and gt_ids.shape[0] > 0 and tracker_ids.shape[0] > 0:

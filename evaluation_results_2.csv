@@ -1,0 +1,10 @@
+Test Name,GT_id_num,T_id_num,Total_difference,Error_rate,HOTA,MOTA,MOTP,IDSW,IDF1
+aiwei_1_deepsort_berry,144,152,8,5.5556,71.002,68.31,96.492,33,77.028
+aiwei_1_deepsort,144,153,9,6.25,70.922,68.278,96.49,34,76.962
+aiwei_1_strongsort_berry,144,161,17,11.806,71.925,72.657,93.899,42,79.041
+aiwei_1_strongsort_berry_1,144,161,17,11.806,71.872,72.594,93.915,41,78.99
+aiwei_1_strongsort,144,154,10,6.9444,71.766,72.484,93.929,53,78.587
+factory_phone_deepsort_berry,180,173,-7,-3.8889,91.941,90.772,99.943,10,94.557
+factory_phone_deepsort,180,173,-7,-3.8889,91.941,90.772,99.943,10,94.557
+factory_phone_strongsort_berry,180,183,3,1.6667,91.938,93.11,97.232,30,95.549
+factory_phone_strongsort,180,173,-7,-3.8889,91.941,90.772,99.943,10,94.557

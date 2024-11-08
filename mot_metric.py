@@ -1,6 +1,8 @@
 import sys
 import os
 import argparse
+import numpy as np
+import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import trackeval  # noqa: E402
@@ -13,7 +15,8 @@ if __name__ == '__main__':
 
     default_dataset_config['GT_FOLDER'] = 'data/mydata/gt/'
     default_dataset_config['TRACKERS_FOLDER'] = 'data/mydata/trackers/'
-    default_dataset_config['BENCHMARK'] = 'test1'
+    default_dataset_config['BENCHMARK'] = 'berry-1'
+    default_dataset_config['SPLIT_TO_EVAL'] = 'test'
 
     config = {**default_eval_config, **default_dataset_config, **default_metrics_config}  # 合并配置
     parser = argparse.ArgumentParser()  # 解析命令行参数
@@ -37,7 +40,7 @@ if __name__ == '__main__':
             elif type(args[setting]) == type(None):
                 x = None
             elif setting == 'SEQ_INFO':  # 特殊处理序列信息
-                x = dict(zip(args[setting], [None]*len(args[setting])))
+                x = dict(zip(args[setting], [None] * len(args[setting])))
             else:
                 x = args[setting]
             config[setting] = x
@@ -55,25 +58,30 @@ if __name__ == '__main__':
     if len(metrics_list) == 0:
         raise Exception('No metrics selected for evaluation')
 
-    _, _, analyze_result= evaluator.evaluate(dataset_list, metrics_list)  # 进入评估器评估
-    # 输出结果
+    _, _, analyze_result = evaluator.evaluate(dataset_list, metrics_list)  # 进入评估器评估
+    # 保存结果
     tracker_list, seq_list, class_list = dataset_list[0].get_eval_info()
     # print(tracker_list)
     # print(seq_list)
     # print(class_list)
     # print(analyze_result[0])
     results = {}
-
     for i in seq_list:
         metric_result = analyze_result[i][class_list[0]]
         results[i] = {
-            "HOTA": metric_result['HOTA']['HOTA'].tolist(),  # 转换为列表以便存储
-            "MOTA": metric_result['CLEAR']['MOTA'],
-            "MOTP": metric_result['CLEAR']['MOTP'],
-            "IDF1": metric_result['Identity']['IDF1']
+            "GT_id_num": metric_result['Count']['GT_IDs'],
+            "T_id_num": metric_result['Count']['IDs'],
+            "Total_difference": metric_result['Count']['IDs'] - metric_result['Count']['GT_IDs'],  # 总数差
+            "Error_rate": "{0:1.5g}".format(100* (metric_result['Count']['IDs'] - metric_result['Count']['GT_IDs'])
+                            / metric_result['Count']['GT_IDs']),  # 总数准确率
+            "HOTA": "{0:1.5g}".format(100* np.mean(metric_result['HOTA']['HOTA'])),  # 平均值
+            "MOTA": "{0:1.5g}".format(100* metric_result['CLEAR']['MOTA']),
+            "MOTP": "{0:1.5g}".format(100*(metric_result['CLEAR']['MOTP'])),
+            "IDSW": metric_result['CLEAR']['IDSW'],
+            "IDF1": "{0:1.5g}".format(100* metric_result['Identity']['IDF1'])
         }
-    print(results)
-    # 打印结果
+    # 打印结果 
+    # print(results)
     for test_name, metrics in results.items():
         print(test_name)
         print("HOTA:", metrics['HOTA'])
@@ -82,3 +90,7 @@ if __name__ == '__main__':
         print("IDF1:", metrics['IDF1'])
 
     # 保存结果
+    results_df = pd.DataFrame.from_dict(results, orient='index')
+    results_df.to_csv('evaluation_results_2.csv', index_label='Test Name')
+    print("结果已保存至"'evaluation_results_2.csv')
+

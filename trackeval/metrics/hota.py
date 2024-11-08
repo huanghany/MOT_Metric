@@ -24,7 +24,7 @@ class HOTA(_BaseMetric):
     @_timing.time
     def eval_sequence(self, data):
         """Calculates the HOTA metrics for one sequence"""
-
+        # 计算
         # Initialise results
         res = {}
         for field in self.float_array_fields + self.integer_array_fields:
