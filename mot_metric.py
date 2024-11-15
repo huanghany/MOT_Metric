@@ -3,6 +3,7 @@ import os
 import argparse
 import numpy as np
 import pandas as pd
+from joblib.externals.cloudpickle import instance
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import trackeval  # noqa: E402
@@ -15,7 +16,7 @@ if __name__ == '__main__':
 
     default_dataset_config['GT_FOLDER'] = 'data/mydata/gt/'
     default_dataset_config['TRACKERS_FOLDER'] = 'data/mydata/trackers/'
-    default_dataset_config['BENCHMARK'] = 'berry-1'
+    default_dataset_config['BENCHMARK'] = 'berry-2'
     default_dataset_config['SPLIT_TO_EVAL'] = 'test'
 
     config = {**default_eval_config, **default_dataset_config, **default_metrics_config}  # 合并配置
@@ -71,15 +72,19 @@ if __name__ == '__main__':
         results[i] = {
             "GT_id_num": metric_result['Count']['GT_IDs'],
             "T_id_num": metric_result['Count']['IDs'],
-            "Total_difference": metric_result['Count']['IDs'] - metric_result['Count']['GT_IDs'],  # 总数差
+            "Total_diff": metric_result['Count']['IDs'] - metric_result['Count']['GT_IDs'],  # 总数差
             "Error_rate": "{0:1.5g}".format(100* (metric_result['Count']['IDs'] - metric_result['Count']['GT_IDs'])
                             / metric_result['Count']['GT_IDs']),  # 总数准确率
             "HOTA": "{0:1.5g}".format(100* np.mean(metric_result['HOTA']['HOTA'])),  # 平均值
             "MOTA": "{0:1.5g}".format(100* metric_result['CLEAR']['MOTA']),
             "MOTP": "{0:1.5g}".format(100*(metric_result['CLEAR']['MOTP'])),
-            "IDSW": metric_result['CLEAR']['IDSW'],
             "IDF1": "{0:1.5g}".format(100* metric_result['Identity']['IDF1'])
         }
+        for key, value in metric_result['CLEAR'].items():
+            if isinstance(value, float):
+                results[i][key] = "{0:1.5g}".format(100 * value)
+            else:
+                results[i][key] = value
     # 打印结果 
     # print(results)
     for test_name, metrics in results.items():
@@ -91,6 +96,6 @@ if __name__ == '__main__':
 
     # 保存结果
     results_df = pd.DataFrame.from_dict(results, orient='index')
-    results_df.to_csv('evaluation_results_2.csv', index_label='Test Name')
-    print("结果已保存至"'evaluation_results_2.csv')
+    results_df.to_csv('evaluation_results_bot_1.csv', index_label='Test Name')
+    print("结果已保存至"'evaluation_results_bot_1.csv')
 

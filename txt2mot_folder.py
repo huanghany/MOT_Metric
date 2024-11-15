@@ -32,8 +32,8 @@ def process_folder(folder_path, output_folder):
 
 
 # 示例文件夹路径
-input_folder = r'D:\华毅\目标追踪数据集\train'
-output_folder = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\trackers\berry-1-train\berry-1'
+input_folder = r'D:\华毅\目标追踪数据集\result'
+output_folder = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\trackers\berry-2-test\berry-3'
 
 # 执行批量处理
 process_folder(input_folder, output_folder)

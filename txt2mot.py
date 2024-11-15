@@ -51,13 +51,13 @@ def modify_gt(input_file, output_file):
 
 
 # 示例文件路径
-# input_file = r'D:\华毅\目标追踪数据集\train\L1_2_gt.txt'
-input_file_1 = r'D:\华毅\目标追踪数据集\1_艾维\20240113-103852_rack-1_left_RGB_track_results_strong_berry_1.txt'
+# input_file = r'D:\华毅\目标追踪数据集\1_艾维\20240113-104949_rack-5_right_RGB_gt.txt'
+# input_file_1 = r'D:\华毅\目标追踪数据集\1_艾维\20240113-103852_rack-1_left_RGB_track_results_strong_berry_1.txt'
 
-# output_file = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\gt\berry-1-train\L1_osnet\gt.txt'
+# output_file = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\gt\berry-2-test\aiwei_2_bot_conf070\gt.txt'
 # output_file = r'D:\华毅\目标追踪数据集\train\L3_2_gt.txt'
-output_file_1 = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\trackers\berry-1-test\berry-3\aiwei_1_strongsort_berry_1.txt'
+# output_file_1 = r'D:\华毅\目标追踪\MOT_Metric\data\mydata\trackers\berry-1-test\berry-3\aiwei_1_strongsort_berry_1.txt'
 
 # change_gt(input_file, output_file)
 # modify_gt(input_file, output_file)
-change_t(input_file_1, output_file_1)
+# change_t(input_file_1, output_file_1)

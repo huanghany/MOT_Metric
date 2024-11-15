@@ -62,7 +62,7 @@ if __name__ == "__main__":
     track_id_set = set()  # 用于记录已统计的track_id
     save_name = 'count'
     # directory_path = r"D:\华毅\目标追踪数据集\1_艾维"  # 文件所在的目录
-    file_path = r"D:\华毅\目标追踪数据集\1_艾维\20240113-103852_rack-1_left_RGB_gt.txt"  # 文件所在的目录
+    file_path = r"D:\华毅\目标追踪数据集\1_艾维\20240113-104949_rack-5_right_RGB_gt.txt"  # 文件所在的目录
     file_set = read_file(file_path)
     print_fruit_statistics()
     source_path = Path(file_path)
