@@ -1,5 +1,5 @@
-
 # MOT_Metric
+
 *用于评估目标跟踪的代码.*
 
 *此代码库基于[TrackEval](https://github.com/JonathonLuiten/TrackEval/)官方库的基础进行更改*
@@ -20,11 +20,28 @@
 ├── txt2mot_cls.py  数据集格式化脚本（将类别转换为对应数字）
 ```
 
+## Requirements
+
+Code tested on Python 3.7-3.11.
+ 
+- Minimum requirements: numpy, scipy
+- For plotting: matplotlib
+- For segmentation datasets (KITTI MOTS, MOTS-Challenge, DAVIS, YouTube-VIS): pycocotools
+- For DAVIS dataset: Pillow
+- For J & F metric: opencv_python, scikit_image
+- For simples test-cases for metrics: pytest
+
+use ```pip3 -r install requirements.txt``` to install all possible requirements.
+
+use ```pip3 -r install minimum_requirments.txt``` to only install the minimum if you don't need the extra functionality
+as listed above.
+
 ## 数据
 
 你可以将你的数据，真实（gt）和测试（test）文件放在`data/mydata/`文件夹下，这是一个例子：
 
 你现在有两个视频，video1和video2，这两个视频你都进行了多目标跟踪。那么你需要这样组织你的文件夹：
+
 ```
 gt/
     test1-train/
@@ -38,22 +55,26 @@ trackers/   # 你自己代码运行出来的结果
 ```
 
 **至于每个文件中的格式，直接参照我的就行，比如：**
+
 ```
 10,1,660,2116,28,63,1,1,1
 10,2,101,3247,37,61,1,1,1
 10,3,68,517,23,40,1,1,1
 ...
 ```
+
 **每行的第一个数是帧号；第二个数是id；后面接着的四个数表示框的位置和大小；最后三个数固定**
 
 ## Running the code
 
 直接运行(进行test1数据集评估)
+
 ```
 python mot_metric.py 
 ```
 
 或者带命令行参数
+
 ```
 python mot_metric.py --BENCHMARK test1  --CLASSES_TO_EVAL ripe --METRICS HOTA CLEAR Identity  --NUM_PARALLEL_CORES 1
 ```
@@ -71,7 +92,8 @@ python mot_metric.py --BENCHMARK test1  --CLASSES_TO_EVAL ripe --METRICS HOTA CL
 
 ## 输出说明
 
-当前输出为一个result字典
+- 当前输出为一个result字典
+
 ```
 test-1:
 HOTA: 0.98422
@@ -82,24 +104,11 @@ test-2:
 ...
 ```
 
-## Requirements
- Code tested on Python 3.7.
- 
- - Minimum requirements: numpy, scipy
- - For plotting: matplotlib
- - For segmentation datasets (KITTI MOTS, MOTS-Challenge, DAVIS, YouTube-VIS): pycocotools
- - For DAVIS dataset: Pillow
- - For J & F metric: opencv_python, scikit_image
- - For simples test-cases for metrics: pytest
-
-use ```pip3 -r install requirements.txt``` to install all possible requirements.
-
-use ```pip3 -r install minimum_requirments.txt``` to only install the minimum if you don't need the extra functionality as listed above.
+- [或者用csv(表格)格式查看](evaluation_results.csv)
 
 ## License
 
 MOT_Metric is released under the [MIT License](LICENSE).
-
 
 ## Citing TrackEval
 
@@ -126,5 +135,7 @@ Furthermore, if you use the HOTA metrics, please cite the following paper:
   publisher={Springer}
 }
 ```
+
 citing
-If you use any other metrics please also cite the relevant papers, and don't forget to cite each of the benchmarks you evaluate on.
+If you use any other metrics please also cite the relevant papers, and don't forget to cite each of the benchmarks you
+evaluate on.
